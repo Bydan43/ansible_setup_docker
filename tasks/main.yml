@@ -1,0 +1,76 @@
+---
+- name: Uninstall old versions docker
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: absent
+    force_apt_get: yes
+  loop:
+    - docker
+    - docker-engine
+    - docker.io
+    - containerd
+    - runc
+
+- name: Install required system packages
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+    force_apt_get: yes
+  loop:
+    "{{ docker_package_dependencies }}"
+
+- name: Create /etc/apt/keyrings directory
+  ansible.builtin.file:
+    path: "{{ keyring_dir }}"
+    state: "directory"
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: Add Docker apt key
+  ansible.builtin.get_url:
+    url: "{{ docker_apt_gpg_key }}"
+    dest: "{{ docker_keyring_file }}"
+    mode: '0644'
+    force: true
+    checksum: "{{ docker_apt_gpg_key_checksum | default(omit) }}"
+
+- name: Add Docker Repository
+  ansible.builtin.apt_repository:
+    repo: "{{ docker_apt_repository }}"
+    filename: "{{ docker_apt_filename }}"
+    state: present
+    update_cache: true
+
+- name: Set docker_distribution_version variable for Ubuntu
+  set_fact:
+    docker_distribution_version: "{{ docker_version }}~{{ ansible_distribution | lower }}.{{ ansible_distribution_version }}~{{ ansible_distribution_release }}"
+  when: ansible_distribution == 'Ubuntu'
+  
+- name: Set docker_distribution_version variable for Debian
+  set_fact:
+    docker_distribution_version: "{{ docker_version }}~{{ ansible_distribution | lower }}.{{ ansible_distribution_major_version }}~{{ ansible_distribution_release }}"
+  when: ansible_distribution == 'Debian'
+
+- name: Docker version fo install
+  debug:
+    msg: "Docker version: {{ docker_distribution_version }}"
+
+- name: Install docker
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    force_apt_get: yes
+  loop:
+    - docker-ce={{ docker_distribution_version }}
+    - docker-ce-cli={{ docker_distribution_version }}
+    - containerd.io
+    - docker-buildx-plugin
+
+- name: Install Compose standalone ver.{{ docker_compose_version }}
+  get_url:
+    url: "{{ docker_compose_url }}"
+    dest: "{{ docker_compose_path }}"
+    mode: 0755
+  when: install_compose_standalone == "yes"

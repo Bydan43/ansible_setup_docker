@@ -1,0 +1,28 @@
+---
+docker_package_dependencies:
+    - "apt-transport-https"
+    - "ca-certificates"
+    - "curl"
+    - "gnupg"
+    - "gnupg2"
+    - "lsb-release"
+    - "python3-pip"
+
+keyring_dir: "/etc/apt/keyrings"
+docker_keyring_file: "{{ keyring_dir }}/docker.asc"
+docker_repo_url: "https://download.docker.com/linux"
+docker_apt_release_channel: "stable"
+docker_apt_gpg_key_checksum: "sha256:1500c1f56fa9e26b9b8f42452a553675796ade0807cdce11975eb98170b3a570"
+docker_apt_gpg_key: "{{ docker_repo_url }}/{{ ansible_distribution | lower }}/gpg"
+docker_apt_arch: amd64
+docker_apt_repository: "deb [arch=amd64 signed-by={{ docker_keyring_file }}] {{ docker_repo_url }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_apt_release_channel }}"
+docker_apt_filename: "docker"
+docker_version: "5:24.0.6-1"
+docker_distribution_version_ubuntu: "{{ docker_version }}~{{ ansible_distribution | lower }}.{{ ansible_distribution_version }}~{{ ansible_distribution_release }}"
+docker_distribution_version_debian: "{{ docker_version }}~{{ ansible_distribution | lower }}.{{ ansible_distribution_major_version }}~{{ ansible_distribution_release }}"
+#5:24.0.6-1~debian.11~bullseye
+
+install_compose_standalone: "no"
+docker_compose_version: 2.20.3
+docker_compose_url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-Linux-x86_64"
+docker_compose_path: "/usr/local/bin/docker-compose"
