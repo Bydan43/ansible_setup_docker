@@ -67,6 +67,19 @@
     - docker-ce-cli={{ docker_distribution_version }}
     - containerd.io
     - docker-buildx-plugin
+  when: docker_distribution_version is defined
+
+- name: Install docker
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    force_apt_get: yes
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-buildx-plugin
+  when: docker_distribution_version is undefined
 
 - name: Install Compose standalone ver.{{ docker_compose_version }}
   get_url:
