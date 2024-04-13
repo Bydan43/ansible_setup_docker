@@ -71,7 +71,7 @@
     force_apt_get: yes
   loop:
     - docker-ce={{ docker_distribution_version }}
-    - docker-ce-cli={{ docker_distribution_version }}
+    - docker-ce-cli
     - containerd.io
     - docker-buildx-plugin
   become: true
