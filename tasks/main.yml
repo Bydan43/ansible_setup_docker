@@ -60,7 +60,7 @@
     docker_distribution_version: "{{ docker_version }}~{{ ansible_distribution | lower }}.{{ ansible_distribution_major_version }}~{{ ansible_distribution_release }}"
   when: ansible_distribution == 'Debian' and docker_version is defined
 
-- name: Docker version fo install
+- name: Docker version for install
   debug:
     msg: "Docker version: {{ docker_distribution_version }}"
   when: docker_distribution_version is defined
@@ -75,7 +75,7 @@
     - containerd.io
     - docker-buildx-plugin
   become: true
-  when: docker_distribution_version is defined
+  when: docker_distribution_version is defined and docker_version != ""
 
 - name: Install docker latest
   ansible.builtin.apt:
@@ -87,7 +87,7 @@
     - containerd.io
     - docker-buildx-plugin
   become: true
-  when: docker_distribution_version is undefined
+  when: docker_distribution_version is undefined or docker_version == ""
 
 - name: Install Compose standalone ver.{{ docker_compose_version }}
   get_url:
